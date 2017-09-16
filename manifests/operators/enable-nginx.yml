@@ -1,0 +1,23 @@
+# Remove tls properties from registry
+- type: remove
+  path: /instance_groups/name=registry/jobs/name=registry/properties/http/tls
+
+# Add nginx job
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: nginx
+    azs:
+      - z1
+    instances: 1
+    vm_type: default
+    stemcell: default
+    networks:
+      - name: default
+    jobs:
+      - name: nginx
+        release: docker-registry
+        properties:
+          ssl_only: true
+          ssl_cert: ((docker_registry_certificate.certificate))
+          ssl_key: ((docker_registry_certificate.private_key))

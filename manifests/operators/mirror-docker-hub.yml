@@ -1,0 +1,4 @@
+# Configure registry as a Docker Hub pull through cache
+- type: replace
+  path: /instance_groups/name=registry/jobs/name=registry/properties/proxy?/remote_url
+  value: https://registry-1.docker.io

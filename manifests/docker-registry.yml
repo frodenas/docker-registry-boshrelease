@@ -1,0 +1,74 @@
+---
+name: docker-registry
+
+instance_groups:
+  - name: registry
+    azs:
+      - z1
+    instances: 1
+    vm_type: default
+    stemcell: default
+    persistent_disk_type: 100GB
+    networks:
+      - name: default
+    jobs:
+      - name: registry
+        release: docker-registry
+        properties:
+          storage:
+            driver: filesystem
+            delete:
+              enabled: true
+          auth:
+            htpasswd:
+              realm: "Docker Registry Realm"
+              users:
+                admin: ((docker_registry_password))
+          http:
+            listen_addr: 0.0.0.0
+            secret: ((docker_registry_secret))
+            headers:
+              X-Content-Type-Options: [nosniff]
+            tls:
+              cert: ((docker_registry_certificate.certificate))
+              key: ((docker_registry_certificate.private_key))
+          health:
+            storagedriver:
+              enabled: true
+              interval: 10s
+              threshold: 3
+
+variables:
+  - name: docker_registry_password
+    type: password
+  - name: docker_registry_secret
+    type: password
+  - name: docker_registry_ca
+    type: certificate
+    options:
+      is_ca: true
+      common_name: docker_registry_ca
+  - name: docker_registry_certificate
+    type: certificate
+    options:
+      ca: docker_registry_ca
+      common_name: docker_registry
+      extended_key_usage:
+        - client_auth
+        - server_auth
+
+update:
+  canaries: 1
+  max_in_flight: 32
+  canary_watch_time: 1000-100000
+  update_watch_time: 1000-100000
+  serial: false
+
+stemcells:
+  - alias: default
+    os: ubuntu-trusty
+    version: latest
+
+releases:
+  - name: docker-registry
+    version: latest

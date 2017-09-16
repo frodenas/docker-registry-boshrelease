@@ -1,0 +1,12 @@
+# Enable Azure storage backend
+- type: replace
+  path: /instance_groups/name=registry/jobs/name=registry/properties/storage/driver?
+  value: azure
+
+# Add Azure properties
+- type: replace
+  path: /instance_groups/name=registry/jobs/name=registry/properties/storage/azure?
+  value:
+    account_name: ((registry_storage_azure_account_name))
+    account_key: ((registry_storage_azure_account_key))
+    container: ((registry_storage_azure_container))
