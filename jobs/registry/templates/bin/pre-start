@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -eu
+
+# Remove old htpasswd file
+rm -fr /var/vcap/jobs/registry/config/registry_htpasswd
+
+# Create new htpasswd file
+<% p('auth.htpasswd.users', {}).each do |username, password| %>
+/var/vcap/packages/httpd_registry/bin/htpasswd -Bbn <%= username %> <%= password %> >> /var/vcap/jobs/registry/config/registry_htpasswd
+<% end %>
+
+exit 0

@@ -1,0 +1,480 @@
+---
+version: 0.1
+log:
+  level: <%= p('log.level') %>
+  <% if_p('log.formatter') do |log_formatter| %>
+  formatter: <%= log_formatter %>
+  <% end %>
+  fields:
+    <% p('log.fields', {}).each do |log_field_key, log_field_value| %>
+    <%= log_field_key %>: <%= log_field_value %>
+    <% end %>
+  <% if_p('log.accesslog.disabled') do |accesslog_disabled| %>
+  accesslog:
+    disabled: <%= accesslog_disabled %>
+  <% end %>
+  hooks:
+    <% if_p('log.hooks.mail.levels',
+            'log.hooks.mail.from',
+            'log.hooks.mail.to',
+            'log.hooks.mail.smtp.addr') do |mail_levels, mail_from, mail_to, mail_addr| %>
+    - type: mail
+      <% if_p('log.hooks.mail.disabled') do |mail_disabled| %>
+      disabled: <%= mail_disabled %>
+      <% end %>
+      levels: <%= mail_levels %>
+      options:
+        from: <%= mail_from %>
+        to: <%= mail_to %>
+        smtp:
+          addr: <%= mail_addr %>
+          <% if_p('log.hooks.mail.smtp.username') do |mail_username| %>
+          username: <%= mail_username %>
+          <% end %>
+          <% if_p('log.hooks.mail.smtp.password') do |mail_password| %>
+          password: <%= mail_password %>
+          <% end %>
+          <% if_p('log.hooks.mail.smtp.insecure') do |mail_insecure| %>
+          insecure: <%= mail_insecure %>
+          <% end %>
+    <% end %>
+
+storage:
+  <% if p('storage.driver') == 'inmemory' %>
+  inmemory:
+
+  <% elsif p('storage.driver') == 'filesystem' %>
+  filesystem:
+    rootdirectory: /var/vcap/store/registry
+    <% if_p('storage.filesystem.max_threads') do |filesystem_max_threads| %>
+    maxthreads: <%= filesystem_max_threads %>
+    <% end %>
+
+  <% elsif p('storage.driver') == 'azure' %>
+  azure:
+    accountname: <%= p('storage.azure.account_name') %>
+    accountkey: <%= p('storage.azure.account_key') %>
+    container: <%= p('storage.azure.container') %>
+    <% if_p('storage.azure.realm') do |azure_realm| %>
+    realm: <%= azure_realm %>
+    <% end %>
+
+  <% elsif p('storage.driver') == 'gcs' %>
+  gcs:
+    bucket: <%= p('storage.gcs.bucket') %>
+    <% if_p('storage.gcs.service_account_key') do %>
+    keyfile: /var/vcap/jobs/registry/config/gcs_service_account_key.json
+    <% end %>
+    <% if_p('storage.gcs.root_directory') do |gcs_root_directory| %>
+    rootdirectory: <%= gcs_root_directory %>
+    <% end %>
+    <% if_p('storage.gcs.chunksize') do |gcs_chunksize| %>
+    chunksize: <%= gcs_chunksize %>
+    <% end %>
+
+  <% elsif p('storage.driver') == 'oss' %>
+  oss:
+    accesskeyid: <%= p('storage.oss.access_key_id') %>
+    accesskeysecret: <%= p('storage.oss.access_key_secret') %>
+    region: <%= p('storage.oss.region') %>
+    <% if_p('storage.oss.endpoint') do |oss_endpoint| %>
+    endpoint: <%= oss_endpoint %>
+    <% end %>
+    <% if_p('storage.oss.internal') do |oss_internal| %>
+    internal: <%= oss_internal %>
+    <% end %>
+    bucket: <%= p('storage.oss.bucket') %>
+    <% if_p('storage.oss.encrypt') do |oss_encrypt| %>
+    encrypt: <%= oss_encrypt %>
+    <% end %>
+    <% if_p('storage.oss.secure') do |oss_secure| %>
+    secure: <%= oss_secure %>
+    <% end %>
+    <% if_p('storage.oss.chunksize') do |oss_chunksize| %>
+    chunksize: <%= oss_chunksize %>
+    <% end %>
+    <% if_p('storage.oss.root_directory') do |oss_root_directory| %>
+    rootdirectory: <%= oss_root_directory %>
+    <% end %>
+
+  <% elsif p('storage.driver') == 's3' %>
+  s3:
+    <% if_p('storage.s3.access_key') do |s3_access_key| %>
+    accesskey: <%= s3_access_key %>
+    <% end %>
+    <% if_p('storage.s3.secret_key') do |s3_secret_key| %>
+    secretkey: <%= s3_secret_key %>
+    <% end %>
+    region: <%= p('storage.s3.region') %>
+    <% if_p('storage.s3.region_endpoint') do |s3_region_endpoint| %>
+    regionendpoint: <%= s3_region_endpoint %>
+    <% end %>
+    bucket: <%= p('storage.s3.bucket') %>
+    <% if_p('storage.s3.encrypt') do |s3_encrypt| %>
+    encrypt: <%= s3_encrypt %>
+    <% end %>
+    <% if_p('storage.s3.keyid') do |s3_keyid| %>
+    keyid: <%= s3_keyid %>
+    <% end %>
+    <% if_p('storage.s3.secure') do |s3_secure| %>
+    secure: <%= s3_secure %>
+    <% end %>
+    <% if_p('storage.s3.v4auth') do |s3_v4auth| %>
+    v4auth: <%= s3_v4auth %>
+    <% end %>
+    <% if_p('storage.s3.chunksize') do |s3_chunksize| %>
+    chunksize: <%= s3_chunksize %>
+    <% end %>
+    <% if_p('storage.s3.multipart_copy_chunksize') do |s3_multipart_copy_chunksize| %>
+    multipartcopychunksize: <%= s3_multipart_copy_chunksize %>
+    <% end %>
+    <% if_p('storage.s3.multipart_copy_max_concurrency') do |s3_multipart_copy_max_concurrency| %>
+    multipartcopymaxconcurrency: <%= s3_multipart_copy_max_concurrency %>
+    <% end %>
+    <% if_p('storage.s3.multipart_copy_threshold_size') do |s3_multipart_copy_threshold_size| %>
+    multipartcopythresholdsize: <%= s3_multipart_copy_threshold_size %>
+    <% end %>
+    <% if_p('storage.s3.root_directory') do |s3_root_directory| %>
+    rootdirectory: <%= s3_root_directory %>
+    <% end %>
+    <% if_p('storage.s3.storage_class') do |s3_storage_class| %>
+    storageclass: <%= s3_storage_class %>
+    <% end %>
+
+  <% elsif p('storage.driver') == 'swift' %>
+  swift:
+    username: <%= p('storage.swift.username') %>
+    password: <%= p('storage.swift.password') %>
+    authurl: <%= p('storage.swift.auth_url') %>
+    <% if_p('storage.swift.tenant') do |swift_tenant| %>
+    tenant: <%= swift_tenant %>
+    <% end %>
+    <% if_p('storage.swift.tenant_id') do |swift_tenant_id| %>
+    tenantid: <%= swift_tenant_id %>
+    <% end %>
+    <% if_p('storage.swift.domain') do |swift_domain| %>
+    domain: <%= swift_domain %>
+    <% end %>
+    <% if_p('storage.swift.domain_id') do |swift_domain_id| %>
+    domainid: <%= swift_domain_id %>
+    <% end %>
+    <% if_p('storage.swift.trust_id') do |swift_trust_id| %>
+    trustid: <%= swift_trust_id %>
+    <% end %>
+    <% if_p('storage.swift.region') do |swift_region| %>
+    region: <%= swift_region %>
+    <% end %>
+    <% if_p('storage.swift.auth_version') do |swift_auth_version| %>
+    authversion: <%= swift_auth_version %>
+    <% end %>
+    container: <%= p('storage.swift.container') %>
+    <% if_p('storage.swift.prefix') do |swift_prefix| %>
+    prefix: <%= swift_prefix %>
+    <% end %>
+    <% if_p('storage.swift.endpoint_type') do |swift_endpoint_type| %>
+    endpointtype: <%= swift_endpoint_type %>
+    <% end %>
+    <% if_p('storage.swift.insecure_skip_verify') do |swift_insecure_skip_verify| %>
+    insecureskipverify: <%= swift_insecure_skip_verify %>
+    <% end %>
+    <% if_p('storage.swift.chunksize') do |swift_chunksize| %>
+    chunksize: <%= swift_chunksize %>
+    <% end %>
+    <% if_p('storage.swift.access_key') do |swift_access_key| %>
+    accesskey: <%= swift_access_key %>
+    <% end %>
+    <% if_p('storage.swift.secret_key') do |swift_secret_key| %>
+    secretkey: <%= swift_secret_key %>
+    <% end %>
+    <% if_p('storage.swift.tempurl_container_key') do |swift_tempurl_container_key| %>
+    tempurlcontainerkey: <%= swift_tempurl_container_key %>
+    <% end %>
+
+  <% else raise "Storage driver #{p('storage.driver')} not supported" %>
+  <% end %>
+
+  cache:
+    <% if_link('redis') do %>
+    blobdescriptor: redis
+    <% end.else do %>
+    blobdescriptor: inmemory
+    <% end %>
+
+  delete:
+    <% if_p('storage.delete.enabled') do |delete_enabled| %>
+    enabled: <%= delete_enabled %>
+    <% end %>
+
+  maintenance:
+    <% if_p('storage.maintenance.uploadpurging.enabled',
+            'storage.maintenance.uploadpurging.age',
+            'storage.maintenance.uploadpurging.interval',
+            'storage.maintenance.uploadpurging.dryrun') do |uploadpurging_enabled, uploadpurging_age, uploadpurging_interval, uploadpurging_dryrun| %>
+    uploadpurging:
+      enabled: <%= uploadpurging_enabled %>
+      age: <%= uploadpurging_age %>
+      interval: <%= uploadpurging_interval %>
+      dryrun: <%= uploadpurging_dryrun %>
+    <% end %>
+    <% if_p('storage.maintenance.readonly.enabled') do |readonly_enabled| %>
+    readonly:
+      enabled: <%= readonly_enabled %>
+    <% end %>
+
+  <% if_p('storage.redirect.disable') do |redirect_disable| %>
+  redirect:
+    disable: <%= redirect_disable %>
+  <% end %>
+
+auth:
+  <% if_p('auth.silly.realm', 'auth.silly.service') do |silly_realm, silly_service| %>
+  silly:
+    realm: <%= silly_realm %>
+    service: <%= silly_service %>
+  <% end %>
+
+  <% if_link('auth_token') do |auth_token| %>
+  token:
+    realm: <%= "#{p('auth.token.schema')}://#{auth_token.instances.first.address}:#{p('auth.token.port')}#{p('auth.token.path')}" %>
+    service: <%= p('auth.token.service') %>
+    issuer: <%= p('auth.token.issuer') %>
+    rootcertbundle: /var/vcap/jobs/registry/config/rootcertbundle.pem
+  <% end %>
+
+  <% if_p('auth.htpasswd.realm', 'auth.htpasswd.users') do |htpasswd_realm, htpasswd_users| %>
+  htpasswd:
+    realm: <%= htpasswd_realm %>
+    path: /var/vcap/jobs/registry/config/registry_htpasswd
+  <% end %>
+
+middleware:
+  <% if_p('middleware.cloudfront.base_url',
+          'middleware.cloudfront.private_key',
+          'middleware.cloudfront.keypair_id',
+          'middleware.cloudfront.duration') do |cloudfront_base_url, cloudfront_private_key, cloudfront_keypair_id, cloudfront_duration| %>
+  storage:
+    - name: cloudfront
+      options:
+        baseurl: <%= cloudfront_base_url %>
+        privatekey: /var/vcap/jobs/registry/config/cloudfront_key.pem
+        keypairid: <%= cloudfront_keypair_id %>
+        duration: <%= cloudfront_duration %>
+  <% end %>
+  <% if_p('middleware.redirect.base_url') do |redirect_base_url| %>
+  storage:
+    - name: redirect
+      options:
+        baseurl: <%= redirect_base_url %>
+  <% end %>
+
+reporting:
+  <% if_p('reporting.bugsnag.api_key') do |bugsnag_api_key| %>
+  bugsnag:
+    apikey: <%= bugsnag_api_key %>
+    <% if_p('reporting.bugsnag.release_stage') do |bugsnag_release_stage| %>
+    releasestage: <%= bugsnag_release_stage %>
+    <% end %>
+    <% if_p('reporting.bugsnag.endpoint') do |bugsnag_endpoint| %>
+    endpoint: <%= bugsnag_endpoint %>
+    <% end %>
+  <% end %>
+  <% if_p('reporting.newrelic.license_key') do |newrelic_license_key| %>
+  newrelic:
+    licensekey: <%= newrelic_license_key %>
+    <% if_p('reporting.newrelic.name') do |newrelic_name| %>
+    name: <%= newrelic_name %>
+    <% end %>
+    <% if_p('reporting.newrelic.verbose') do |newrelic_verbose| %>
+    verbose: <%= newrelic_verbose %>
+    <% end %>
+  <% end %>
+
+http:
+  net: <%= p('http.net') %>
+  <% if p('http.net') == 'tcp' %>
+  addr: <%= p('http.listen_addr') %>:<%= p('http.port') %>
+  <% elsif p('http.net') == 'unix' %>
+  addr: /var/vcap/sys/run/registry/registry.sock
+  <% else raise "HTTP net #{p('http.net')} not supported" %>
+  <% end %>
+  <% if_p('http.prefix') do |http_prefix| %>
+  prefix: <%= http_prefix %>
+  <% end %>
+  <% if_p('http.host') do |http_host| %>
+  host: <%= http_host %>
+  <% end %>
+  <% if_p('http.secret') do |http_secret| %>
+  secret: <%= http_secret %>
+  <% end %>
+  <% if_p('http.relative_urls') do |http_relative_urls| %>
+  relativeurls: <%= http_relative_urls %>
+  <% end %>
+  tls:
+    <% if_p('http.tls.cert', 'http.tls.key') do %>
+    certificate: /var/vcap/jobs/registry/config/registry_tls_cert.pem
+    key: /var/vcap/jobs/registry/config/registry_tls_key.pem
+    <% if_p('http.tls.ca') do %>
+    clientcas:
+      - /var/vcap/jobs/registry/config/registry_tls_ca.pem
+    <% end %>
+    <% end %>
+    <% if_p('http.tls.letsencrypt.email') do |letsencrypt_email| %>
+    letsencrypt:
+      cachefile: /var/vcap/store/registry/letsencrypt.cachefile
+      email: <%= letsencrypt_email %>
+    <% end %>
+  <% if_p('http.debug.listen_addr', 'http.debug.port') do |debug_listen_addr, debug_port| %>
+  debug:
+    addr: <%= debug_listen_addr %>:<%= debug_port %>
+  <% end %>
+  headers:
+    <% p('http.headers', {}).each do |http_header_key, http_header_value| %>
+    <%= http_header_key %>: <%= http_header_value %>
+    <% end %>
+  <% if_p('http.http2.disabled') do |http2_disabled| %>
+  http2:
+    disabled: <%= http2_disabled %>
+  <% end %>
+
+notifications:
+  endpoints:
+    <% if_link('notification') do |notification| %>
+    - name: <%= p('notifications.endpoint.name') %>
+      url: <%= "#{p('notifications.endpoint.schema')}://#{notification.instances.first.address}:#{p('notifications.endpoint.port')}#{p('notifications.endpoint.path')}" %>
+      headers:
+        <% p('notifications.endpoint.headers', {}).each do |endpoint_header_key, endpoint_header_value| %>
+        <%= endpoint_header_key %>: <%= endpoint_header_value %>
+        <% end %>
+      <% if_p('notifications.endpoint.disabled') do |endpoint_disabled| %>
+      disabled: <%= endpoint_disabled %>
+      <% end %>
+      <% if_p('notifications.endpoint.timeout') do |endpoint_timeout| %>
+      timeout: <%= endpoint_timeout %>
+      <% end %>
+      <% if_p('notifications.endpoint.threshold') do |endpoint_threshold| %>
+      threshold: <%= endpoint_threshold %>
+      <% end %>
+      <% if_p('notifications.endpoint.backoff') do |endpoint_backoff| %>
+      backoff: <%= endpoint_backoff %>
+      <% end %>
+      <% if_p('notifications.endpoint.ignored_media_types') do |endpoint_ignored_media_types| %>
+      ignoredmediatypes: <%= endpoint_ignored_media_types %>
+      <% end %>
+    <% end %>
+
+redis:
+  <% if_link('redis') do |redis| %>
+  addr: <%= redis.instances.first.address %>:<%= p('redis.port') %>
+  <% if_p('redis.password') do |redis_password| %>
+  password: <%= redis_password %>
+  <% end %>
+  <% if_p('redis.db') do |redis_db| %>
+  db: <%= redis_db %>
+  <% end %>
+  <% if_p('redis.dial_timeout') do |redis_dial_timeout| %>
+  dialtimeout: <%= redis_dial_timeout %>
+  <% end %>
+  <% if_p('redis.read_timeout') do |redis_read_timeout| %>
+  readtimeout: <%= redis_read_timeout %>
+  <% end %>
+  <% if_p('redis.write_timeout') do |redis_write_timeout| %>
+  writetimeout: <%= redis_write_timeout %>
+  <% end %>
+  pool:
+    <% if_p('redis.pool.max_idle') do |pool_max_idle| %>
+    maxidle: <%= pool_max_idle %>
+    <% end %>
+    <% if_p('redis.pool.max_active') do |pool_max_active| %>
+    maxactive: <%= pool_max_active %>
+    <% end %>
+    <% if_p('redis.pool.idle_timeout') do |pool_idle_timeout| %>
+    idletimeout: <%= pool_idle_timeout %>
+    <% end %>
+  <% end %>
+
+health:
+  <% if_p('health.storagedriver.enabled') do |storagedriver_enabled| %>
+  storagedriver:
+    enabled: <%= storagedriver_enabled %>
+    <% if_p('health.storagedriver.interval') do |storagedriver_interval| %>
+    interval: <%= storagedriver_interval %>
+    <% end %>
+    <% if_p('health.storagedriver.threshold') do |storagedriver_threshold| %>
+    threshold: <%= storagedriver_threshold %>
+    <% end %>
+  <% end %>
+  http:
+    <% if_link('health_http') do |health_http| %>
+    - uri: <%= "#{p('health.http.schema')}://#{health_http.instances.first.address}:#{p('health.http.port')}#{p('health.http.path')}" %>
+      headers:
+        <% p('health.http.headers', {}).each do |http_header_key, http_header_value| %>
+        <%= http_header_key %>: <%= http_header_value %>
+        <% end %>
+      <% if_p('health.http.status_code') do |http_status_code| %>
+      statuscode: <%= http_status_code %>
+      <% end %>
+      <% if_p('health.http.timeout') do |http_timeout| %>
+      timeout: <%= http_timeout %>
+      <% end %>
+      <% if_p('health.http.interval') do |http_interval| %>
+      interval: <%= http_interval %>
+      <% end %>
+      <% if_p('health.http.threshold') do |http_threshold| %>
+      threshold: <%= http_threshold %>
+      <% end %>
+    <% end %>
+  tcp:
+    <% if_link('redis') do |redis| %>
+    - addr: <%= redis.instances.first.address %>:<%= p('redis.port') %>
+      <% if_p('health.redis.timeout') do |tcp_timeout| %>
+      timeout: <%= tcp_timeout %>
+      <% end %>
+      <% if_p('health.redis.interval') do |tcp_interval| %>
+      interval: <%= tcp_interval %>
+      <% end %>
+      <% if_p('health.redis.threshold') do |tcp_threshold| %>
+      threshold: <%= tcp_threshold %>
+      <% end %>
+    <% end %>
+    <% if_link('health_tcp') do |health_tcp| %>
+    - addr: <%= health_tcp.instances.first.address %>:<%= p('health.tcp.port') %>
+      <% if_p('health.tcp.timeout') do |tcp_timeout| %>
+      timeout: <%= tcp_timeout %>
+      <% end %>
+      <% if_p('health.tcp.interval') do |tcp_interval| %>
+      interval: <%= tcp_interval %>
+      <% end %>
+      <% if_p('health.tcp.threshold') do |tcp_threshold| %>
+      threshold: <%= tcp_threshold %>
+      <% end %>
+    <% end %>
+
+<% if_p('proxy.remote_url') do |proxy_remote_url| %>
+proxy:
+  remoteurl: <%= proxy_remote_url %>
+  <% if_p('proxy.username') do |proxy_username| %>
+  username: <%= proxy_username %>
+  <% end %>
+  <% if_p('proxy.password') do |proxy_password| %>
+  password: <%= proxy_password %>
+  <% end %>
+<% end %>
+
+compatibility:
+  <% if_p('compatibility.schema1.signing_key') do %>
+  schema1:
+    signingkeyfile: /var/vcap/jobs/registry/config/schema1_signing_key.pem
+  <% end %>
+
+validation:
+  <% if_p('validation.enabled') do |validation_enabled| %>
+  enabled: <%= validation_enabled %>
+  <% if_p('validation.manifests.allow_urls') do |manifests_allow_urls| %>
+  manifests:
+    urls:
+      allow: <%= manifests_allow_urls %>
+      <% if_p('validation.manifests.deny_urls') do |manifests_deny_urls| %>
+      deny: <%= manifests_deny_urls %>
+      <% end %>
+  <% end %>
+  <% end %>

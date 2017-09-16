@@ -1,0 +1,417 @@
+---
+name: registry
+
+packages:
+  - registry
+  - httpd_registry
+
+templates:
+  bin/post-start: bin/post-start
+  bin/pre-start: bin/pre-start
+  bin/registry_ctl: bin/registry_ctl
+  bin/registry_garbage_collect: bin/registry_garbage_collect
+  config/cloudfront_key.pem: config/cloudfront_key.pem
+  config/gcs_service_account_key.json: config/gcs_service_account_key.json
+  config/registry.yml: config/registry.yml
+  config/registry_tls_ca.pem: config/registry_tls_ca.pem
+  config/registry_tls_cert.pem: config/registry_tls_cert.pem
+  config/registry_tls_key.pem: config/registry_tls_key.pem
+  config/rootcertbundle.pem: config/rootcertbundle.pem
+  config/schema1_signing_key.pem: config/schema1_signing_key.pem
+
+provides:
+  - name: registry
+    type: docker_registry
+    properties:
+      - http.port
+
+consumes:
+  - name: redis
+    type: redis
+    optional: true
+  - name: auth_token
+    type: http_endpoint
+    optional: true
+  - name: notification
+    type: http_endpoint
+    optional: true
+  - name: health_http
+    type: http_endpoint
+    optional: true
+  - name: health_tcp
+    type: tcp_endpoint
+    optional: true
+
+properties:
+  log.level:
+    description: "Granularity at which registry operations are logged (error, warn, info, or debug)"
+    default: info
+  log.formatter:
+    description: "Formatter overrides the default formatter with another ('text', 'json' and 'logstash')"
+  log.fields:
+    description: "A map of field names to values. These are added to every log line for the context"
+
+  log.accesslog.disabled:
+    description: "Disable access logging"
+
+  log.hooks.mail.disabled:
+    description: "Set to true to disable mail hook"
+  log.hooks.mail.levels:
+    description: "A list of levels to notify"
+  log.hooks.mail.from:
+    description: "SMTP From"
+  log.hooks.mail.to:
+    description: "A list of SMTP To"
+  log.hooks.mail.smtp.addr:
+    description: "SMTP address"
+  log.hooks.mail.smtp.username:
+    description: "SMTP username"
+  log.hooks.mail.smtp.password:
+    description: "SMTP password"
+  log.hooks.mail.smtp.insecure:
+    description: "SMTP insecure"
+
+  storage.driver:
+    description: "Storage backend to use (inmemory, filesystem, azure, gcs, s3, swift, oss)"
+
+  storage.filesystem.max_threads:
+    description: "The maximum number of simultaneous blocking filesystem operations permitted within the registry"
+
+  storage.azure.account_name:
+    description: "Name of the Azure Storage Account"
+  storage.azure.account_key:
+    description: "Primary or Secondary Key for the Storage Account"
+  storage.azure.container:
+    description: "Name of the Azure root storage container in which all registry data will be stored"
+  storage.azure.realm:
+    description: "Domain name suffix for the Storage Service API endpoint"
+
+  storage.gcs.bucket:
+    description: "Storage bucket name"
+  storage.gcs.service_account_key:
+    description: "A private service account key file in JSON format"
+  storage.gcs.root_directory:
+    description: "This is a prefix that will be applied to all Google Cloud Storage keys to allow you to segment data in your bucket if necessary"
+  storage.gcs.chunksize:
+    description: "This is the chunk size used for uploading large blobs, must be a multiple of 256*1024"
+
+  storage.oss.access_key_id:
+    description: "Your access key ID"
+  storage.oss.access_key_secret:
+    description: "Your access key secret"
+  storage.oss.region:
+    description: "The name of the OSS region in which you would like to store objects"
+  storage.oss.endpoint:
+    description: "An endpoint"
+  storage.oss.internal:
+    description: "An internal endpoint or the public endpoint for OSS access"
+  storage.oss.bucket:
+    description: "The name of your OSS bucket where you wish to store objects"
+  storage.oss.encrypt:
+    description: "Specifies whether you would like your data encrypted on the server side"
+  storage.oss.secure:
+    description: "Specifies whether to transfer data to the bucket over ssl or not"
+  storage.oss.chunksize:
+    description: "The default part size for multipart uploads (performed by WriteStream) to OSS"
+  storage.oss.root_directory:
+    description: "The root directory tree in which to store all registry files"
+
+  storage.s3.access_key:
+    description: "Your AWS Access Key"
+  storage.s3.secret_key:
+    description: "Your AWS Secret Key"
+  storage.s3.region:
+    description: "The AWS region in which your bucket exists"
+  storage.s3.region_endpoint:
+    description: "Endpoint for S3 compatible storage services"
+  storage.s3.bucket:
+    description: "The bucket name in which you want to store the registry's data"
+  storage.s3.encrypt:
+    description: "Specifies whether the registry stores the image in encrypted format or not"
+  storage.s3.keyid:
+    description: "Optional KMS key ID to use for encryption"
+  storage.s3.secure:
+    description: "Indicates whether to use HTTPS instead of HTTP"
+  storage.s3.v4auth:
+    description: "Indicates whether the registry uses Version 4 of AWS's authentication"
+  storage.s3.chunksize:
+    description: "The S3 API requires multipart upload chunks to be at least 5MB. This value should be a number that is larger than 5*1024*1024"
+  storage.s3.multipart_copy_chunksize:
+    description: "The default chunk size for all but the last Upload Part - Copy operation of a multipart copy"
+  storage.s3.multipart_copy_max_concurrency:
+    description: "The default maximum number of concurrent Upload Part - Copy operations for a multipart copy"
+  storage.s3.multipart_copy_threshold_size:
+    description: "The default object size above which multipart copy will be used"
+  storage.s3.root_directory:
+    description: "This is a prefix that will be applied to all S3 keys to allow you to segment data in your bucket if necessary"
+  storage.s3.storage_class:
+    description: "The S3 storage class applied to each registry file"
+
+  storage.swift.username:
+    description: "Your Openstack user name"
+  storage.swift.password:
+    description: "Your Openstack password"
+  storage.swift.auth_url:
+    description: "URL for obtaining an auth token"
+  storage.swift.tenant:
+    description: "Your Openstack tenant name. You can either use tenant or tenantid"
+  storage.swift.tenant_id:
+    description: "Your Openstack tenant id. You can either use tenant or tenantid"
+  storage.swift.domain:
+    description: "Your Openstack domain name for Identity v3 API. You can either use domain or domainid"
+  storage.swift.domain_id:
+    description: "Your Openstack domain id for Identity v3 API. You can either use domain or domainid"
+  storage.swift.trust_id:
+    description: "Your Openstack trust id for Identity v3 API"
+  storage.swift.region:
+    description: "The Openstack region in which your container exists"
+  storage.swift.auth_version:
+    description: "Specify the OpenStack Auth's version,for example 3. By default the driver will autodetect the auth's version from the AuthURL"
+  storage.swift.container:
+    description: "The name of your Swift container where you wish to store the registry's data. The driver creates the named container during its initialization"
+  storage.swift.prefix:
+    description: "This is a prefix that will be applied to all Swift keys to allow you to segment data in your container if necessary"
+  storage.swift.endpoint_type:
+    description: "The endpoint type used when connecting to swift"
+  storage.swift.insecure_skip_verify:
+    description: "true to skip TLS verification"
+  storage.swift.chunksize:
+    description: "Size of the data segments for the Swift Dynamic Large Objects"
+  storage.swift.access_key:
+    description: "The access key to generate temporary URLs"
+  storage.swift.secret_key:
+    description: "The secret key used to generate temporary URLs"
+  storage.swift.tempurl_container_key:
+    description: "Specify whether to use container secret key to generate temporary URL when set to true, or the account secret key otherwise"
+
+  storage.delete.enabled:
+    description: "Enable the deletion of image blobs and manifests by digest"
+
+  storage.maintenance.uploadpurging.enabled:
+    description: "Set to true to enable upload purging"
+  storage.maintenance.uploadpurging.age:
+    description: "Upload directories which are older than this age will be deleted"
+  storage.maintenance.uploadpurging.interval:
+    description: "The interval between upload directory purging"
+  storage.maintenance.uploadpurging.dryrun:
+    description: "Set dryrun to true to obtain a summary of what directories will be deleted"
+
+  storage.maintenance.readonly.enabled:
+    description: "If the readonly section has enabled set to true, clients will not be allowed to write to the registry"
+
+  storage.redirect.disable:
+    description: "Disable redirects from content backends"
+
+  auth.silly.realm:
+    description: "The realm in which the registry server authenticates"
+  auth.silly.service:
+    description: "The service being authenticated"
+
+  auth.token.schema:
+    description: "The realm schema in which the registry server authenticates"
+    default: https
+  auth.token.port:
+    description: "The realm port in which the registry server authenticates"
+    default: 443
+  auth.token.path:
+    description: "The realm path in which the registry server authenticates"
+    default: "/"
+  auth.token.service:
+    description: "The service being authenticated"
+  auth.token.issuer:
+    description: "The name of the token issuer. The issuer inserts this into the token so it must match the value configured for the issuer"
+  auth.token.rootcertbundle:
+    description: "The root certificate bundle. This bundle contains the public part of the certificates used to sign authentication tokens"
+
+  auth.htpasswd.realm:
+    description: "The realm in which the registry server authenticates"
+  auth.htpasswd.users:
+    description: "A map of username and password"
+    example:
+      admin: admin
+
+  middleware.cloudfront.base_url:
+    description: "The URL at which Cloudfront is served"
+  middleware.cloudfront.private_key:
+    description: "The private key for Cloudfront, provided by AWS"
+  middleware.cloudfront.keypair_id:
+    description: "The key pair ID provided by AWS"
+  middleware.cloudfront.duration:
+    description: "An integer and unit for the duration of the Cloudfront session"
+
+  middleware.redirect.base_url:
+    description: "The URL at which layers are served"
+
+  reporting.bugsnag.api_key:
+    description: "The API Key provided by Bugsnag"
+  reporting.bugsnag.release_stage:
+    description: "Tracks where the registry is deployed, using a string like production, staging, or development"
+  reporting.bugsnag.endpoint:
+    description: "The enterprise Bugsnag endpoint"
+
+  reporting.newrelic.license_key:
+    description: "License key provided by New Relic"
+  reporting.newrelic.name:
+    description: "New Relic application name"
+  reporting.newrelic.verbose:
+    description: "Set to true to enable New Relic debugging output on stdout"
+
+  http.net:
+    description: "The network used to create a listening socket. Known networks are unix and tcp"
+    default: tcp
+  http.listen_addr:
+    description: "The address for which the server should accept connections"
+    default: 127.0.0.1
+  http.port:
+    description: "The port for which the server should accept connections"
+    default: 5000
+  http.prefix:
+    description: "If the server does not run at the root path, set this to the value of the prefix. The root path is the section before v2. It requires both preceding and trailing slashes, such as in the example /path/"
+  http.host:
+    description: "A fully-qualified URL for an externally-reachable address for the registry. If present, it is used when creating generated URLs. Otherwise, these URLs are derived from client requests"
+  http.secret:
+    description: "A random piece of data used to sign state that may be stored with the client to protect against tampering. For production environments you should generate a random piece of data using a cryptographically secure random generator. If you omit the secret, the registry will automatically generate a secret when it starts"
+  http.relative_urls:
+    description: "If true, the registry returns relative URLs in Location headers. The client is responsible for resolving the correct URL"
+
+  http.tls.cert:
+    description: "x509 certificate"
+  http.tls.key:
+    description: "x509 private key"
+  http.tls.ca:
+    description: "x509 CA"
+
+  http.tls.letsencrypt.email:
+    description: "The email address used to register with Let’s Encrypt"
+
+  http.debug.listen_addr:
+    description: "The address for which the debug server should accept connections"
+  http.debug.port:
+    description: "The port for which the debug server should accept connections"
+
+  http.headers:
+    description: "Use it to specify a map of headers that the HTTP server should include in responses"
+
+  http.http2.disabled:
+    description: "If true, then http2 support is disabled"
+
+  notifications.endpoint.name:
+    description: "A human-readable name for the service"
+  notifications.endpoint.schema:
+    description: "The schema of the URL to which events should be published"
+    default: "http"
+  notifications.endpoint.port:
+    description: "The port of the URL to which events should be published"
+  notifications.endpoint.path:
+    description: "The endpoint of the URL to which events should be published"
+    default: "/"
+  notifications.endpoint.headers:
+    description: "A map of static headers to add to each request"
+  notifications.endpoint.disabled:
+    description: "If true, notifications are disabled for the service"
+  notifications.endpoint.timeout:
+     description: "A value for the HTTP timeout"
+  notifications.endpoint.threshold:
+    description: "An integer specifying how long to wait before backing off a failure"
+  notifications.endpoint.backoff:
+    description: "How long the system backs off before retrying after a failure"
+  notifications.endpoint.ignored_media_types:
+    description: "A list of target media types to ignore"
+
+  redis.port:
+    description: "The redis port"
+    default: 6379
+  redis.password:
+    description: "The redis password"
+  redis.db:
+    description: "The name of the database to use for each connection"
+  redis.dial_timeout:
+    description: "The timeout for connecting to the redis instance"
+  redis.read_timeout:
+    description: "The timeout for reading from the redis instance"
+  redis.write_timeout:
+    description: "The timeout for writing to the redis instance"
+
+  redis.pool.max_idle:
+    description: "The maximum number of idle connections in the pool"
+  redis.pool.max_active:
+    description: "The maximum number of connections which can be open before blocking a connection request"
+  redis.pool.idle_timeout:
+    description: "How long to wait before closing inactive connections"
+
+  health.storagedriver.enabled:
+    description: "Set to true to enable storage driver health checks or false to disable them"
+  health.storagedriver.interval:
+    description: "How long to wait between repetitions of the storage driver health check. A positive integer and an optional suffix indicating the unit of time. The suffix is one of ns, us, ms, s, m, or h"
+  health.storagedriver.threshold:
+    description: "A positive integer which represents the number of times the check must fail before the state is marked as unhealthy"
+
+  health.http.schema:
+    description: "The schema of the URI to check"
+    default: "http"
+  health.http.port:
+    description: "The port of the URI to check"
+  health.http.path:
+    description: "The path of the URI to check"
+    default: ""
+  health.http.headers:
+    description: "A map of static headers to add to each request"
+  health.http.status_code:
+    description: "The expected status code from the HTTP URI"
+  health.http.timeout:
+    description: "How long to wait before timing out the HTTP request"
+  health.http.interval:
+    description: "How long to wait before repeating the check"
+  health.http.threshold:
+    description: "The number of times the check must fail before the state is marked as unhealthy"
+
+  health.redis.timeout:
+    description: "How long to wait before timing out the redis connection"
+  health.redis.interval:
+    description: "How long to wait between repetitions of the check"
+  health.redis.threshold:
+    description: "The number of times the check must fail before the state is marked as unhealthy"
+
+  health.tcp.port:
+    description: "The TCP port to connect to"
+  health.tcp.timeout:
+    description: "How long to wait before timing out the TCP connection"
+  health.tcp.interval:
+    description: "How long to wait between repetitions of the check"
+  health.tcp.threshold:
+    description: "The number of times the check must fail before the state is marked as unhealthy"
+
+  proxy.remote_url:
+    description: "The URL for the repository on Docker Hub"
+  proxy.username:
+    description: "The username registered with Docker Hub which has access to the repository"
+  proxy.password:
+    description: "The password used to authenticate to Docker Hub using the username specified in username"
+
+  compatibility.schema1.signing_key:
+    description: "The signing private key used to add signatures to schema1 manifests"
+
+  validation.enabled:
+    description: "Enable the other options in the validation section"
+
+  validation.manifests.allow_urls:
+    description: "A list of URL's regular expressions that allows them in pushed manifests"
+  validation.manifests.deny_urls:
+    description: "A list of URL's regular expressions that restricts them in pushed manifests"
+
+  garbage_collection.hourly:
+    description: "Run garbage collection process hourly"
+    default: false
+  garbage_collection.daily:
+    description: "Run garbage collection process daily"
+    default: false
+  garbage_collection.weekly:
+    description: "Run garbage collection process weekly"
+    default: false
+
+  env.http_proxy:
+    description: "HTTP proxy to use"
+  env.https_proxy:
+    description: "HTTPS proxy to use"
+  env.no_proxy:
+    description: "List of comma-separated hosts that should skip connecting to the proxy"
