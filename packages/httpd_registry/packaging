@@ -1,0 +1,53 @@
+#!/bin/bash
+
+set -eux
+
+# Build expat packages
+tar xvf ${BOSH_COMPILE_TARGET}/httpd/expat-2.2.4.tar.bz2
+pushd expat-2.2.4
+./configure \
+  --prefix=${BOSH_INSTALL_TARGET}
+make
+make install
+popd
+
+# Build pcre package
+tar xzvf ${BOSH_COMPILE_TARGET}/httpd/pcre-8.41.tar.gz
+pushd pcre-8.41
+./configure \
+  --prefix=${BOSH_INSTALL_TARGET}
+make
+make install
+popd
+
+# Build apr package
+tar xzvf ${BOSH_COMPILE_TARGET}/httpd/apr-1.6.2.tar.gz
+pushd apr-1.6.2
+./configure \
+  --prefix=${BOSH_INSTALL_TARGET}
+make
+make install
+popd
+
+# Build apr-util package
+tar xzvf ${BOSH_COMPILE_TARGET}/httpd/apr-util-1.6.0.tar.gz
+pushd apr-util-1.6.0
+./configure \
+  --prefix=${BOSH_INSTALL_TARGET} \
+  --with-apr=${BOSH_INSTALL_TARGET} \
+  --with-expat=${BOSH_INSTALL_TARGET}
+make
+make install
+popd
+
+# Build httpd package
+tar xzvf ${BOSH_COMPILE_TARGET}/httpd/httpd-2.4.27.tar.gz
+pushd httpd-2.4.27
+./configure \
+  --prefix=${BOSH_INSTALL_TARGET} \
+  --with-apr=${BOSH_INSTALL_TARGET} \
+  --with-apr-util=${BOSH_INSTALL_TARGET} \
+  --with-pcre=${BOSH_INSTALL_TARGET}
+make
+make install
+popd

@@ -1,0 +1,9 @@
+---
+name: httpd_registry
+
+files:
+  - httpd/apr-1.6.2.tar.gz
+  - httpd/apr-util-1.6.0.tar.gz
+  - httpd/expat-2.2.4.tar.bz2
+  - httpd/httpd-2.4.27.tar.gz
+  - httpd/pcre-8.41.tar.gz
