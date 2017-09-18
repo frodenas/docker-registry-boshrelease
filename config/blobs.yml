@@ -1,0 +1,32 @@
+golang/go1.9.linux-amd64.tar.gz:
+  size: 102601309
+  object_id: 641d9afb-188e-42a4-77ba-75f377723f90
+  sha: 6a00c39435edc1e102f1fb75cc1137fba4c9e4e2
+httpd/apr-1.6.2.tar.gz:
+  size: 1071074
+  object_id: 1f9a0277-931e-4a2c-5dd6-194eb29bbec8
+  sha: 20aa9eb9925637d54fe84b49d8497766cf0e11f0
+httpd/apr-util-1.6.0.tar.gz:
+  size: 565507
+  object_id: 5e22a071-f046-40eb-5bf0-7d637a2d825c
+  sha: 3c085a570610d02b11974e8e3efeb85784523c46
+httpd/expat-2.2.4.tar.bz2:
+  size: 505038
+  object_id: 0dcbce41-9465-4f4c-4a0d-b37615d194a6
+  sha: 3394d6390c041a8f5dec1d5fe7c4af0a23ae4504
+httpd/httpd-2.4.27.tar.gz:
+  size: 8603417
+  object_id: 4f71b0a3-f372-4945-7510-948297c7c20f
+  sha: c0f1b57a70db4843bb1c774b6cc04e169629403c
+httpd/pcre-8.41.tar.gz:
+  size: 2068775
+  object_id: d14a10f7-6e3c-40c0-5f77-6b2751d7df20
+  sha: dddf0995aefe04cc6267c1448ffef0e7b0560ec0
+nginx/nginx-1.10.3.tar.gz:
+  size: 911509
+  object_id: 07f76c45-10ec-46a3-54e0-0a4dcf04b81a
+  sha: 95cf32c3e33efc53ac81338a5779fbaa425f02e2
+nginx/pcre-8.41.tar.gz:
+  size: 2068775
+  object_id: 4ecffa54-ed04-4f9d-6ef4-f44b835fc19c
+  sha: dddf0995aefe04cc6267c1448ffef0e7b0560ec0
