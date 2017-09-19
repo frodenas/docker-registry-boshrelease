@@ -71,4 +71,6 @@ stemcells:
 
 releases:
   - name: docker-registry
-    version: latest
+    version: 1
+    url: https://github.com/frodenas/docker-registry-boshrelease/releases/download/v1/docker-registry-1.tgz
+    sha1: 058fb0740cde6fad0dac8257e37ea32fd288465d

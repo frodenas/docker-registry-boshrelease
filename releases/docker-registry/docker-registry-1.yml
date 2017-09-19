@@ -1,0 +1,39 @@
+name: docker-registry
+version: "1"
+commit_hash: d252cb1
+uncommitted_changes: false
+jobs:
+- name: nginx
+  version: f532c4a916754a69a1c9695226ae7d04498bd31a
+  fingerprint: f532c4a916754a69a1c9695226ae7d04498bd31a
+  sha1: 3fd72b7eafc1e25de756bffd6914edd61f3bddf8
+- name: registry
+  version: d81b4fb0f387072199782216beef16127963c1f6
+  fingerprint: d81b4fb0f387072199782216beef16127963c1f6
+  sha1: f50043d34f1628b3a3242136933f2dd89c35245d
+packages:
+- name: golang_registry
+  version: 5933acee850683e39a2aae8e84c6b96fe425e352
+  fingerprint: 5933acee850683e39a2aae8e84c6b96fe425e352
+  sha1: ce816a13e20254e40a7632388cc28ffdf2c618df
+  dependencies: []
+- name: httpd_registry
+  version: ff4eae4b01f71ce6900847480a7f5fca21546055
+  fingerprint: ff4eae4b01f71ce6900847480a7f5fca21546055
+  sha1: 7c6784ee2588ffe37ca8c9a670a60029cfc3cc0d
+  dependencies: []
+- name: nginx_registry
+  version: 0a41f72e76661031e840e238727db836260d47b4
+  fingerprint: 0a41f72e76661031e840e238727db836260d47b4
+  sha1: 9aca035105e4744d74ad100f3cb0160cfbe2ff39
+  dependencies: []
+- name: registry
+  version: 8d2a4df3cb89d1c929b829fa9312abf5d61a86aa
+  fingerprint: 8d2a4df3cb89d1c929b829fa9312abf5d61a86aa
+  sha1: e6c8fd99ea996f88d8666c094e88f1a6b13ea3f0
+  dependencies:
+  - golang_registry
+license:
+  version: d7e0eaedef15cfa23e93ec07c11d36ea8db1184e
+  fingerprint: d7e0eaedef15cfa23e93ec07c11d36ea8db1184e
+  sha1: 308c9e0bf0b67ef89237a1c4f8f46b2a719c2e37
